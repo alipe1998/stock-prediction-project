@@ -2,8 +2,10 @@
 
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras import layers, models, optimizers, regularizers
+from tensorflow.keras import layers, models, optimizers, regularizers, mixed_precision
 from models.base_model import BaseModel
+
+mixed_precision.set_global_policy("mixed_float16")
 
 def build_keras_mlp(hidden_layer_sizes=(64, 32, 16), activation='relu',
                     solver='adam', alpha=0.001, learning_rate_init=0.001, input_shape=None):
@@ -36,8 +38,9 @@ def build_keras_mlp(hidden_layer_sizes=(64, 32, 16), activation='relu',
                                kernel_regularizer=regularizers.l2(alpha)))
     
     # Output layer
-    model.add(layers.Dense(1, activation='linear'))
-    
+    # Output layer (force float32 to prevent numerical issues in loss)
+    model.add(layers.Dense(1, activation='linear', dtype='float32'))
+
     # Select optimizer
     if solver.lower() == 'adam':
         optimizer = optimizers.Adam(learning_rate=learning_rate_init)
