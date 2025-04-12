@@ -93,8 +93,8 @@ def perform_grid_search(model_name, Xtrain, ytrain, param_grid):
     date_str = datetime.now().strftime("%Y-%m-%d")
     model_filename = f"{model_name}_{date_str}_r2_{best_score:.4f}.h5"
     save_path = MODEL_DIR / model_filename
-    best_model.save(save_path)
-    logging.info(f"Model saved as: {save_path}")
+    #best_model.save(save_path)
+    #logging.info(f"Model saved as: {save_path}")
     
     # Evaluate training performance on full training set
     y_pred_train = best_model.predict(Xtrain).flatten()
