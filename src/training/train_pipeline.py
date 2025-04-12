@@ -40,16 +40,19 @@ def pool_training_data(df, current_month, months_back, features):
         logging.error(f"Failed pooling training data: {e}")
         raise
 
-def perform_grid_search(model_name, Xtrain, ytrain, param_grid):
+def perform_grid_search(model_name, Xtrain, ytrain, param_grid, tune_hyperparams=True):
     """
-    Manual grid search over the hyperparameters in `param_grid`. For each combination,
-    the training data is split into train and validation parts. The model is trained on the 
-    training split and evaluated on the validation split using R² score.
+    Manual grid search over the hyperparameters in `param_grid` if tuning is enabled.
+    For each combination, the training data is split into train and validation parts.
+    The model is trained on the training split and evaluated on the validation split using R².
     
-    After finding the best hyperparameters, the best model is retrained on the full training data.
+    If tuning is disabled, the function uses the first candidate for each parameter.
+    
+    After selecting the parameters (either via grid search or defaults), the best model
+    is retrained on the full training data.
     
     Returns:
-      best_params: Dictionary of the best hyperparameters.
+      best_params: Dictionary of chosen hyperparameters.
       train_r2: R² score on the full training set.
       best_model: The trained model instance.
     """
@@ -59,8 +62,23 @@ def perform_grid_search(model_name, Xtrain, ytrain, param_grid):
         raise ValueError(f"Model {model_name} not found in the registry.")
     
     param_names = list(param_grid.keys())
-    param_values_list = [param_grid[p] for p in param_names]
     
+    # If hyperparameter tuning is disabled, use the first candidate from each parameter list.
+    if not tune_hyperparams:
+        default_params = {p: param_grid[p][0] for p in param_names}
+        logging.info(f"Hyperparameter tuning disabled. Using default hyperparameters: {default_params}")
+        input_shape = (Xtrain.shape[1],)
+        start_time = time.perf_counter()
+        model_instance = ModelClass(input_shape=input_shape, **default_params)
+        model_instance.train(Xtrain, ytrain, verbose=0)
+        end_time = time.perf_counter()
+        logging.info(f"Training with default hyperparameters completed in {end_time - start_time:.2f} seconds")
+        y_pred_train = model_instance.predict(Xtrain).flatten()
+        train_r2 = r2_score(ytrain, y_pred_train)
+        return default_params, train_r2, model_instance
+    
+    # Otherwise, proceed with grid search.
+    param_values_list = [param_grid[p] for p in param_names]
     best_score = -np.inf
     best_params = None
     best_model = None
@@ -70,37 +88,37 @@ def perform_grid_search(model_name, Xtrain, ytrain, param_grid):
     
     logging.info(f"Beginning grid search for model: {model_name}")
     total_combinations = len(list(product(*param_values_list)))
-
+    
     for i, param_combination in enumerate(product(*param_values_list), start=1):
         current_params = dict(zip(param_names, param_combination))
         input_shape = (Xtrain.shape[1],)
         logging.info(f"[{i}/{total_combinations}] Trying params: {current_params}")
-
+        
         try:
             model_instance = ModelClass(input_shape=input_shape, **current_params)
-            
             start_time = time.perf_counter()
             model_instance.train(X_train_split, y_train_split, verbose=0)
             end_time = time.perf_counter()
             elapsed = end_time - start_time
             logging.info(f"→ Trained in {elapsed:.2f} seconds")
-
+            
             y_pred_val = model_instance.predict(X_val).flatten()
             current_score = r2_score(y_val, y_pred_val)
-            logging.info(f"→ R2 on validation set: {current_score:.4f}")
+            logging.info(f"→ R² on validation set: {current_score:.4f}")
         except Exception as e:
             logging.warning(f"Model failed with params {current_params}: {e}")
             continue
-
+        
         if current_score > best_score:
             best_score = current_score
             best_params = current_params
             best_model = model_instance
             logging.info(f"↑ New best score: {best_score:.4f} with params {best_params}")
-
-    logging.info(f"Best hyperparameters: {best_params}, validation R2: {best_score:.4f}")
+    
+    logging.info(f"Best hyperparameters: {best_params}, validation R²: {best_score:.4f}")
+    
     # Retrain the best model on the full training data using the best hyperparameters.
-    logging.info(f"Retraining best model on full training data...")
+    logging.info("Retraining best model on full training data...")
     start_time = time.perf_counter()
     input_shape = (Xtrain.shape[1],)
     best_model = ModelClass(input_shape=input_shape, **best_params)
@@ -109,14 +127,7 @@ def perform_grid_search(model_name, Xtrain, ytrain, param_grid):
     elapsed = end_time - start_time
     logging.info(f"Retraining completed in {elapsed:.2f} seconds")
     
-    # Save best model using Keras native save (file will be in .h5 format)
-    date_str = datetime.now().strftime("%Y-%m-%d")
-    model_filename = f"{model_name}_{date_str}_r2_{best_score:.4f}.h5"
-    save_path = MODEL_DIR / model_filename
-    #best_model.save(save_path)
-    #logging.info(f"Model saved as: {save_path}")
-    
-    # Evaluate training performance on full training set
+    # Evaluate training performance on the full training set.
     y_pred_train = best_model.predict(Xtrain).flatten()
     train_r2 = r2_score(ytrain, y_pred_train)
     
