@@ -1,0 +1,59 @@
+default:
+  data:
+    overall_date_range:
+      start: "2010-01"      # Earliest date to fetch data
+      end: "2010-04"        # Latest date to fetch data
+    rolling_window:
+      train_window_months: 1   # Use the previous 1 month(s) for training
+      test_offset: 1           # Test on the month immediately after training
+  features:
+    base:
+      - mom1m
+      - mom6m
+      - mom12m
+      - retvol
+      - bm
+      - siccd
+  preprocessing_pipeline:
+    - drop_na
+    - quantile_transform
+    - encode_industry
+    - drop_na
+  model:
+    name: mlpk
+    params:
+      hidden_layer_sizes: [[8, 4]]
+      activation: [relu]
+      solver: [adam]
+      max_iter: [500]
+
+experiment_2:
+  data:
+    overall_date_range:
+      start: "2010-01"
+      end: "2010-12"
+    rolling_window:
+      train_window_months: 1
+      test_offset: 1
+  features:
+    base:
+      - mom36m
+      - realestate
+      - indmom
+      - roeq
+      - agr
+      - siccd
+  preprocessing_pipeline:
+    - drop_na
+    - encode_industry
+    - quantile_transform
+  model:
+    name: mlpk
+    params:
+      hidden_layer_sizes: [[64, 32, 16]]
+      activation: [relu]
+      solver: [adam]
+      max_iter: [2000]
+      alpha: [0.001]       # L2 regularization strength
+      learning_rate_init: [0.001]  # You might want to experiment with this parameter
+

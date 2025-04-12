@@ -1,0 +1,50 @@
+,start,end,industry
+0,          0100,0999,Consumer Nondurables
+1,          2000,2399,Consumer Nondurables
+2,          2700,2749,Consumer Nondurables
+3,          2770,2799,Consumer Nondurables
+4,          3100,3199,Consumer Nondurables
+5,          3940,3989,Consumer Nondurables
+6,          2500,2519,Consumer Durables
+7,          2590,2599,Consumer Durables
+8,          3630,3659,Consumer Durables
+9,          3710,3711,Consumer Durables
+10,          3714,3714,Consumer Durables
+11,          3716,3716,Consumer Durables
+12,          3750,3751,Consumer Durables
+13,          3792,3792,Consumer Durables
+14,          3900,3939,Consumer Durables
+15,          3990,3999,Consumer Durables
+16,          2520,2589,Manufacturing
+17,          2600,2699,Manufacturing
+18,          2750,2769,Manufacturing
+19,          3000,3099,Manufacturing
+20,          3200,3569,Manufacturing
+21,          3580,3629,Manufacturing
+22,          3700,3709,Manufacturing
+23,          3712,3713,Manufacturing
+24,          3715,3715,Manufacturing
+25,          3717,3749,Manufacturing
+26,          3752,3791,Manufacturing
+27,          3793,3799,Manufacturing
+28,          3830,3839,Manufacturing
+29,          3860,3899,Manufacturing
+30,          1200,1399,Energy
+31,          2900,2999,Energy
+32,          2800,2829,Chemicals
+33,          2840,2899,Chemicals
+34,          3570,3579,Business Equipment
+35,          3660,3692,Business Equipment
+36,          3694,3699,Business Equipment
+37,          3810,3829,Business Equipment
+38,          7370,7379,Business Equipment
+39,          4800,4899,Telecommunications
+40,          4900,4949,Utilities
+41,          5000,5999,Shops
+42,          7200,7299,Shops
+43,          7600,7699,Shops
+44,          2830,2839,Healthcare
+45,          3693,3693,Healthcare
+46,          3840,3859,Healthcare
+47,          8000,8099,Healthcare
+48,          6000,6999,Finance
