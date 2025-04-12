@@ -2,7 +2,7 @@ default:
   data:
     overall_date_range:
       start: "2010-01"
-      end: "2011-12"
+      end: "2021-12"
     rolling_window:
       train_window_months: 1
       test_offset: 1
@@ -37,11 +37,11 @@ default:
       max_iter:
         - 1000  # More epochs; early stopping is enabled anyway
 
-experiment_2:
+experiment_1:
   data:
     overall_date_range:
       start: "2010-01"
-      end: "2011-12"
+      end: "2021-12"
     rolling_window:
       train_window_months: 1
       test_offset: 1
@@ -78,9 +78,9 @@ experiment_2:
       solver:
         - adam
       learning_rate_init:
-        - 0.002  # Slightly higher learning rate to pair with large batch size
+        - 0.005  # Slightly higher learning rate to pair with large batch size
       alpha:
-        - 0.0005  # Slightly reduced regularization
+        - 0.001  # High regularization
       max_iter:
         - 1000  # More epochs; early stopping is enabled anyway
 
