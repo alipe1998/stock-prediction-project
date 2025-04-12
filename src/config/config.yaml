@@ -66,7 +66,7 @@ experiment_2:
     - drop_na
     - encode_industry
     - quantile_transform
-    - drop na
+    - drop_na
   model:
     name: mlpk
     params:
