@@ -71,7 +71,7 @@ experiment_2:
     name: mlpk
     params:
       hidden_layer_sizes: 
-        - [[512, 256, 128, 64]]
+        - [512, 256, 128, 64]
       activation:
         - relu
       solver:
