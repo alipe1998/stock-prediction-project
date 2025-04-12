@@ -4,6 +4,7 @@ import pandas as pd
 import logging
 from pathlib import Path
 import sys
+import time
 from datetime import datetime
 import numpy as np
 from itertools import product
@@ -67,27 +68,46 @@ def perform_grid_search(model_name, Xtrain, ytrain, param_grid):
     # Split training data into train and validation sets (80/20 split)
     X_train_split, X_val, y_train_split, y_val = train_test_split(Xtrain, ytrain, test_size=0.2, random_state=42)
     
-    for param_combination in product(*param_values_list):
+    logging.info(f"Beginning grid search for model: {model_name}")
+    total_combinations = len(list(product(*param_values_list)))
+
+    for i, param_combination in enumerate(product(*param_values_list), start=1):
         current_params = dict(zip(param_names, param_combination))
         input_shape = (Xtrain.shape[1],)
-        model_instance = ModelClass(input_shape=input_shape, **current_params)
-        # Train on the training split
-        model_instance.train(X_train_split, y_train_split, verbose=0)
-        # Predict on the validation split
-        y_pred_val = model_instance.predict(X_val).flatten()
-        current_score = r2_score(y_val, y_pred_val)
-        logging.info(f"Tested params {current_params} => val R2: {current_score:.4f}")
+        logging.info(f"[{i}/{total_combinations}] Trying params: {current_params}")
+
+        try:
+            model_instance = ModelClass(input_shape=input_shape, **current_params)
+            
+            start_time = time.perf_counter()
+            model_instance.train(X_train_split, y_train_split, verbose=0)
+            end_time = time.perf_counter()
+            elapsed = end_time - start_time
+            logging.info(f"→ Trained in {elapsed:.2f} seconds")
+
+            y_pred_val = model_instance.predict(X_val).flatten()
+            current_score = r2_score(y_val, y_pred_val)
+            logging.info(f"→ R2 on validation set: {current_score:.4f}")
+        except Exception as e:
+            logging.warning(f"Model failed with params {current_params}: {e}")
+            continue
+
         if current_score > best_score:
             best_score = current_score
             best_params = current_params
             best_model = model_instance
-    
+            logging.info(f"↑ New best score: {best_score:.4f} with params {best_params}")
+
+    logging.info(f"Best hyperparameters: {best_params}, validation R2: {best_score:.4f}")
     # Retrain the best model on the full training data using the best hyperparameters.
+    logging.info(f"Retraining best model on full training data...")
+    start_time = time.perf_counter()
     input_shape = (Xtrain.shape[1],)
     best_model = ModelClass(input_shape=input_shape, **best_params)
     best_model.train(Xtrain, ytrain, verbose=0)
-    
-    logging.info(f"Best hyperparameters: {best_params}, validation R2: {best_score:.4f}")
+    end_time = time.perf_counter()
+    elapsed = end_time - start_time
+    logging.info(f"Retraining completed in {elapsed:.2f} seconds")
     
     # Save best model using Keras native save (file will be in .h5 format)
     date_str = datetime.now().strftime("%Y-%m-%d")

@@ -75,7 +75,7 @@ class MLPKerasModel(BaseModel):
                                      input_shape=self.input_shape)
         return self.model
 
-    def train(self, X, y, batch_size=512, verbose=2, use_early_stopping=True, patience=5):
+    def train(self, X, y, batch_size=1024, verbose=2, use_early_stopping=True, patience=5):
         if self.model is None:
             if self.input_shape is None:
                 self.input_shape = (X.shape[1],)
