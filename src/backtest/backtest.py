@@ -22,7 +22,7 @@ from training.train_pipeline import pool_training_data, perform_grid_search
 
 logging.basicConfig(level=logging.INFO)
 
-def run_backtest(df, model_name, features, months_back, start_month, end_month, param_grid, preprocessing_pipeline):
+def run_backtest(df, model_name, features, months_back, start_month, end_month, param_grid, preprocessing_pipeline, tune_hyperparams=False):
     """
     Runs a backtest using a rolling window approach.
     
@@ -60,7 +60,7 @@ def run_backtest(df, model_name, features, months_back, start_month, end_month, 
 
         try:
             # Train model and get best hyperparams and training performance
-            best_params, train_r2, best_model = perform_grid_search(model_name, X_train, y_train, param_grid)
+            best_params, train_r2, best_model = perform_grid_search(model_name, X_train, y_train, param_grid, tune_hyperparams=tune_hyperparams)
         except Exception as e:
             logging.warning(f"Skipping month {current_month}: error during model training/grid search: {e}")
             continue
