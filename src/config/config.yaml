@@ -39,6 +39,13 @@ default:
 
 # overrides on top of your default block
 experiment_1:
+  data:
+    overall_date_range:
+      start: "2010-01"
+      end: "2021-12"
+    rolling_window:
+      train_window_months: 1
+      test_offset: 1
   features:
     base:
       - mom1m
@@ -65,6 +72,13 @@ experiment_1:
         - 500               # fewer epochs—quick feedback
 
 experiment_2:
+  data:
+    overall_date_range:
+      start: "2010-01"
+      end: "2021-12"
+    rolling_window:
+      train_window_months: 1
+      test_offset: 1
   features:
     base:
       - turn
