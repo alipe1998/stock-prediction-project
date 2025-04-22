@@ -12,8 +12,8 @@ default:
       - mom6m
       - mom12m
       - mom36m 
-      - retvol
-      - bm
+      - maxret
+      - indmom
       - siccd
       
   preprocessing_pipeline:
@@ -37,50 +37,58 @@ default:
       max_iter:
         - 1000  # More epochs; early stopping is enabled anyway
 
+# overrides on top of your default block
 experiment_1:
-  data:
-    overall_date_range:
-      start: "2010-01"
-      end: "2021-12"
-    rolling_window:
-      train_window_months: 1
-      test_offset: 1
   features:
     base:
-     - maxret          
-     - mom12m           
-     - mom1m           
-     - mom36m           
-     - mom6m            
-     - ms              
-     - mve              
-     - mve_ia           
-     - nanalyst         
-     - nincr           
-     - operprof        
-     - orgcap           
-     - pchcapx_ia       
-     - pchcurrat       
-     - pchdepr  
-     - siccd  
-  preprocessing_pipeline:
-    - drop_na
-    - encode_industry
-    - quantile_transform
-    - drop_na
+      - mom1m
+      - mom6m
+      - mom12m
+      - mom36m
+      - maxret
+      - indmom
+      - siccd
   model:
     name: mlpk
     params:
-      hidden_layer_sizes: 
-        - [512, 256, 128, 64]
+      hidden_layer_sizes:
+        - [128, 64]         # small network
       activation:
         - relu
       solver:
         - adam
       learning_rate_init:
-        - 0.005  # Slightly higher learning rate to pair with large batch size
+        - 0.001             # standard LR
       alpha:
-        - 0.001  # High regularization
+        - 0.001             # modest L2 to stabilize
       max_iter:
-        - 1000  # More epochs; early stopping is enabled anyway
+        - 500               # fewer epochs—quick feedback
+
+experiment_2:
+  features:
+    base:
+      - turn
+      - std_turn
+      - dolvol
+      - std_dolvol
+      - ill
+      - pricedelay
+      - siccd
+  model:
+    name: mlpk
+    params:
+      hidden_layer_sizes:
+        - [64, 32]           # shallow net for noisy signals
+      activation:
+        - tanh               # tanh can help center noisy inputs
+      solver:
+        - adam
+      learning_rate_init:
+        - 0.0005             # slower LR for stability on noisy data
+      alpha:
+        - 0.005              # stronger L2 to prevent overfit
+      max_iter:
+        - 700                # moderate epochs
+
+
 
