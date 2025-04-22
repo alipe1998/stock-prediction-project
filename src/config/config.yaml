@@ -15,7 +15,6 @@ default:
       - maxret
       - indmom
       - siccd
-      
   preprocessing_pipeline:
     - drop_na
     - quantile_transform
@@ -55,6 +54,11 @@ experiment_1:
       - maxret
       - indmom
       - siccd
+  preprocessing_pipeline:
+    - drop_na
+    - quantile_transform
+    - encode_industry
+    - drop_na
   model:
     name: mlpk
     params:
@@ -88,6 +92,11 @@ experiment_2:
       - ill
       - pricedelay
       - siccd
+  preprocessing_pipeline:
+    - drop_na
+    - quantile_transform
+    - encode_industry
+    - drop_na
   model:
     name: mlpk
     params:
