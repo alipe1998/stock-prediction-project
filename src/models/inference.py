@@ -62,7 +62,23 @@ def save_predictions(df, output_path=PREDICTION_OUTPUT_PATH):
     df.to_csv(output_path, index=False)
     logging.info(f"Predictions saved to {output_path}")
 
-def run_inference(model_path, features, current_month):
+def run_inference(model_path, features, current_month, preprocessing_pipeline=None):
+    """Run inference on the latest available data.
+
+    Parameters
+    ----------
+    model_path : str or Path
+        Path to the trained model file.
+    features : list
+        List of feature names used by the model.
+    current_month : str
+        Month (``YYYY-MM``) for which to fetch live data.
+    preprocessing_pipeline : list, optional
+        Sequence of preprocessing step names to apply. If ``None`` the pipeline
+        defined in ``src/config/config.yaml`` under the ``default`` block will
+        be used if available.
+    """
+
     engine = get_db_engine(server, username, password, database)
 
     # Load model
@@ -71,8 +87,30 @@ def run_inference(model_path, features, current_month):
     # Fetch latest data
     df_live = get_latest_data(engine, features, current_month)
 
+    # Determine preprocessing pipeline
+    if preprocessing_pipeline is None:
+        config_path = ROOT_DIR / "src" / "config" / "config.yaml"
+        if config_path.exists():
+            try:
+                import yaml
+                with open(config_path, "r") as f:
+                    config = yaml.safe_load(f)
+                preprocessing_pipeline = config.get("default", {}).get(
+                    "preprocessing_pipeline", []
+                )
+                logging.info(
+                    f"Loaded preprocessing pipeline from {config_path}: {preprocessing_pipeline}"
+                )
+            except Exception as e:
+                logging.warning(
+                    f"Failed to load preprocessing pipeline from {config_path}: {e}"
+                )
+                preprocessing_pipeline = []
+        else:
+            preprocessing_pipeline = []
+
     # Preprocess data (consistent with training)
-    df_live_clean = preprocess_data(df_live, features)
+    df_live_clean = preprocess_data(df_live, features, preprocessing_pipeline)
 
     # Generate predictions
     predictions_df = generate_predictions(model, df_live_clean, features)
