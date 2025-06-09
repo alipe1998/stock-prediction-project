@@ -140,3 +140,13 @@ This comprehensive process gives you a robust method for evaluating your modelâ€
 ---
 
 This explanation should help you understand the mechanics of your backtesting code and what kind of output to expect from it.
+
+## Running Tests
+
+This project uses `pytest` for unit tests. After installing the dependencies, run:
+
+```bash
+pytest
+```
+
+The tests are located in the `tests/` directory and cover utility functions like portfolio evaluation.
