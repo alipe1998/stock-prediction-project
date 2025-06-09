@@ -31,8 +31,9 @@ stock-prediction-project/
 │   │
 │   ├── models/
 │   │   ├── base_model.py            # Abstract Base Class
-│   │   ├── mlp.py                   # MLP-specific class
-│   │   └── xgboost_model.py         # XGBoost example
+│   │   ├── mlp.py                   # PyTorch MLP implementation
+│   │   ├── mlp_keras.py             # Keras MLP implementation
+│   │   └── inference.py             # Model inference utilities
 │   │
 │   ├── backtest/
 │   │   ├── backtest.py               
@@ -43,8 +44,8 @@ stock-prediction-project/
 │   │   └── portfolio.py              
 │   │
 │   └── utils/
-│       ├── helpers.py                
-│       └── logger.py                 # Custom logging
+│       ├── constants.py
+│       └── helpers.py
 │
 └── reports/
     └── project_report.pdf            
